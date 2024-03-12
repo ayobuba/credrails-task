@@ -56,3 +56,7 @@ output "db_endpoint" {
   value = aws_db_instance.credrails-rds.endpoint
 }
 
+output "db_name" {
+  value = aws_db_instance.credrails-rds.name
+}
+
