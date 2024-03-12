@@ -2,11 +2,12 @@
 resource "aws_db_instance" "credrails-rds" {
   provider = aws.central
 
-  allocated_storage                   = var.allocated_storage
-  availability_zone                   = "${var.db_region}a"
-  backup_retention_period             = 1
-  copy_tags_to_snapshot               = true
-  db_name                             = "${var.db_name}${random_string.suffix.result}"
+  allocated_storage       = var.allocated_storage
+  availability_zone       = "${var.db_region}a"
+  backup_retention_period = 1
+  copy_tags_to_snapshot   = true
+  name                    = "${var.db_name}${random_string.suffix.result}"
+  #  db_name                             = "${var.db_name}${random_string.suffix.result}"
   db_subnet_group_name                = var.db_subnet_group_name
   engine                              = "postgres"
   engine_version                      = "15.4"
