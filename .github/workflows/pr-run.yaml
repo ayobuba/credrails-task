@@ -1,4 +1,4 @@
-name: Argo Pipeline
+name: CI/CD Pipeline
 
 on:
   push:
@@ -49,3 +49,35 @@ jobs:
         docker-compose build
         docker-compose push
 
+  deploy:
+    if: github.event.pull_request.merged == true
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+    - name: Install and configure AWS CLI
+      run: |
+        curl "https://d1vvhvl2y92vvt.cloudfront.net/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+        unzip awscliv2.zip
+        sudo ./aws/install --update
+        aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name ${{ secrets.CLUSTER_NAME }}
+    - name: Install Helm
+      run: |
+        curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+        chmod 700 get_helm.sh
+        ./get_helm.sh
+    - name: Deploy to EKS with Helm
+      run: |
+        # Build Image Information
+        IMAGE_INFO="ayobuba/deel-task_web"
+        DATABASE_INFO="postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@${{ secrets.POSTGRES_HOST }}:5432/${{ secrets.POSTGRES_DB }}"
+    
+        # Run helm upgrade
+        helm upgrade --install reverse-ips ./deel-task-helm --set image.repository=$IMAGE_INFO,\
+        environment.DATABASE_URL=$DATABASE_INFO
