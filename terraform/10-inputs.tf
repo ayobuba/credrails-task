@@ -1,7 +1,7 @@
 locals {
-  name_prefix   = "${var.app_name}-${var.app}"
-  account_id    = data.aws_caller_identity.current.account_id
-  account_alias = data.aws_iam_account_alias.current.account_alias
+  name_prefix       = "${var.app_name}-${var.app}"
+  account_id        = data.aws_caller_identity.current.account_id
+  account_alias     = data.aws_iam_account_alias.current.account_alias
   cluster_name      = "${var.app_name}-${random_string.suffix.result}"
   instance-userdata = <<EOF
     #!/bin/bash
@@ -56,4 +56,37 @@ variable "access_key" {
 variable "secret_key" {
   type        = string
   description = "Secret Access Key"
+}
+
+
+#RDS
+
+variable "db_region" {
+  type        = string
+  description = "AWS DB Region."
+}
+
+variable "db_password" {
+  default = ""
+}
+variable "db_name" {
+  default = ""
+}
+variable "db_subnet_group_name" {
+  default = ""
+}
+variable "vpc_security_group_ids" {
+  default = ""
+}
+variable "username" {
+  default = ""
+}
+variable "identifier" {
+  default = ""
+}
+variable "instance_class" {
+  default = ""
+}
+variable "allocated_storage" {
+  default = ""
 }

@@ -3,6 +3,14 @@ provider "aws" {
   access_key = var.access_key
   secret_key = var.secret_key
 }
+
+provider "aws" {
+  alias      = "central"
+  region     = var.db_region
+  access_key = var.access_key
+  secret_key = var.secret_key
+}
+
 terraform {
   required_providers {
     helm = {
@@ -15,6 +23,12 @@ terraform {
       source  = "hashicorp/aws"
       version = "3.75.1"
     }
+  }
+  backend "s3" {
+    bucket         = "production-tfstate-bucket-557968956216"
+    key            = "credrails/dev/terraform.tfstate"
+    region         = "eu-central-1"
+    dynamodb_table = "production-tfstate-bucket-lock-dynamodb-557968956216"
   }
 }
 

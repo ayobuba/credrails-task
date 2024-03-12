@@ -51,3 +51,8 @@ output "cluster_name" {
   value       = local.cluster_name
 }
 
+#RDS
+output "db_endpoint" {
+  value = aws_db_instance.credrails-rds.endpoint
+}
+
