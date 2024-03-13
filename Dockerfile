@@ -27,8 +27,8 @@ COPY requirements.txt .
 RUN pip3 install -r requirements.txt
 
 # Switching to a non-root user
-RUN adduser --disabled-password --gecos '' deeluser && usermod -aG sudo deeluser
-USER deeluser
+RUN adduser --disabled-password --gecos '' bookstoreuser && usermod -aG sudo bookstoreuser
+USER bookstoreuser
 
 EXPOSE 5000
 # Set the entrypoint and start server
