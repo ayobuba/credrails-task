@@ -20,22 +20,22 @@ data:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: flask-app-deployment
+  name: credrails-app-deployment
   namespace: task
   labels:
-    app: flask-app
+    app: credrails-app
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: flask-app
+      app: credrails-app
   template:
     metadata:
       labels:
-        app: flask-app
+        app: credrails-app
     spec:
       containers:
-      - name: flask-app-container
+      - name: credrails-app-container
         image: ayobuba/credrails-task-web:latest # Replace with your Docker image name and tag
         ports:
         - containerPort: 5001
@@ -68,11 +68,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: flask-app-service
+  name: credrails-app-service
   namespace: task
 spec:
   selector:
-    app: flask-app
+    app: credrails-app
   ports:
     - protocol: TCP
       port: 80
