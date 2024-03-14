@@ -32,52 +32,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - name: Install Docker Compose
-      run: |
-        sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-        sudo chmod +x /usr/local/bin/docker-compose
     - name: Login to DockerHub
       uses: docker/login-action@v1
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
     - name: Build and push Docker image
+      env:
+        POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+        POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+        POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
       run: |
-        export POSTGRES_USER=${{ secrets.POSTGRES_USER }}
-        export POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
-        export POSTGRES_DB=${{ secrets.POSTGRES_DB }}
-        docker-compose build
-        docker-compose push
-
-#  deploy:
-#    if: github.event.pull_request.merged == true
-#    needs: build
-#    runs-on: ubuntu-latest
-#    steps:
-#    - uses: actions/checkout@v2
-#    - name: Configure AWS credentials
-#      uses: aws-actions/configure-aws-credentials@v1
-#      with:
-#        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#        aws-region: ${{ secrets.AWS_REGION }}
-#    - name: Install and configure AWS CLI
-#      run: |
-#        curl "https://d1vvhvl2y92vvt.cloudfront.net/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-#        unzip awscliv2.zip
-#        sudo ./aws/install --update
-#        aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name ${{ secrets.CLUSTER_NAME }}
-#    - name: Install Helm
-#      run: |
-#        curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
-#        chmod 700 get_helm.sh
-#        ./get_helm.sh
-#    - name: Deploy to EKS with Helm
-#      run: |
-#        # Build Image Information
-#        IMAGE_INFO="ayobuba/deel-task_web"
-#        DATABASE_INFO="postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@${{ secrets.POSTGRES_HOST }}:5432/${{ secrets.POSTGRES_DB }}"
-#
-#        # Run helm upgrade
-#        helm upgrade --install reverse-ips ./deel-task-helm --set image.repository=$IMAGE_INFO,\
-#        environment.DATABASE_URL=$DATABASE_INFO
+        docker build -t ayobuba/credrails-task-web:latest .
+        docker push ayobuba/credrails-task-web:latest
