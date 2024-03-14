@@ -1,0 +1,81 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: task
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgres-credentials
+  namespace: task
+type: Opaque
+data:
+  postgres-user: Ym9va3N0b3JldXNlcg==
+  postgres-password: Y3JlZHJhaWxzMTIz
+  postgres-db: Y3JlZHJhaWxzMFlj
+  postgres-host: Y3JlZHJhaWxzLTEuYzNycTNiemZkdWRsLmV1LWNlbnRyYWwtMS5yZHMuYW1hem9uYXdzLmNvbQ==
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: credrails-app-deployment
+  namespace: task
+  labels:
+    app: credrails-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: credrails-app
+  template:
+    metadata:
+      labels:
+        app: credrails-app
+    spec:
+      containers:
+      - name: credrails-app-container
+        image: ayobuba/credrails-task-web:latest # Replace with your Docker image name and tag
+        ports:
+        - containerPort: 5001
+        env:
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgres-credentials
+              key: postgres-user
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-credentials
+              key: postgres-password
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: postgres-credentials
+              key: postgres-db
+
+
+        - name: POSTGRES_HOST
+          valueFrom:
+            secretKeyRef:
+              name: postgres-credentials
+              key: postgres-host
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: credrails-app-service
+  namespace: task
+spec:
+  selector:
+    app: credrails-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5001
+  type: LoadBalancer # Change this to ClusterIP or NodePort if needed
+
